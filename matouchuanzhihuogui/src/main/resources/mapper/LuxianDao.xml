@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LuxianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chuanzhi_id as chuanzhiId
+        ,a.luxian_uuid_number as luxianUuidNumber
+        ,a.luxian_content as luxianContent
+        ,a.luxian_delete as luxianDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LuxianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,chuanzhi.chuanzhi_uuid_number as chuanzhiUuidNumber
+        ,chuanzhi.chuanzhi_name as chuanzhiName
+        ,chuanzhi.chuanzhi_types as chuanzhiTypes
+        ,chuanzhi.chuanzhi_photo as chuanzhiPhoto
+        ,chuanzhi.chuanzhi_xinghao as chuanzhiXinghao
+        ,chuanzhi.chuanzhi_caizhi as chuanzhiCaizhi
+        ,chuanzhi.chuanzhi_content as chuanzhiContent
+        ,chuanzhi.chuanzhi_delete as chuanzhiDelete
+
+        FROM luxian  a
+        left JOIN chuanzhi chuanzhi ON a.chuanzhi_id = chuanzhi.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.chuanzhiId != null and params.chuanzhiId != ''">
+                and a.chuanzhi_id = #{params.chuanzhiId}
+            </if>
+            <if test=" params.luxianUuidNumber != '' and params.luxianUuidNumber != null and params.luxianUuidNumber != 'null' ">
+                and a.luxian_uuid_number like CONCAT('%',#{params.luxianUuidNumber},'%')
+            </if>
+            <if test=" params.luxianContent != '' and params.luxianContent != null and params.luxianContent != 'null' ">
+                and a.luxian_content like CONCAT('%',#{params.luxianContent},'%')
+            </if>
+            <if test="params.luxianDeleteStart != null and params.luxianDeleteStart != ''">
+                <![CDATA[  and a.luxian_delete >= #{params.luxianDeleteStart}   ]]>
+            </if>
+            <if test="params.luxianDeleteEnd != null and params.luxianDeleteEnd != ''">
+                <![CDATA[  and a.luxian_delete <= #{params.luxianDeleteEnd}   ]]>
+            </if>
+             <if test="params.luxianDelete != null and params.luxianDelete != ''">
+                and a.luxian_delete = #{params.luxianDelete}
+             </if>
+
+                <!-- 判断船只信息的id不为空 -->
+            <if test=" params.chuanzhiIdNotNull != '' and params.chuanzhiIdNotNull != null and params.chuanzhiIdNotNull != 'null' ">
+                and a.chuanzhi_id IS NOT NULL
+            </if>
+            <if test=" params.chuanzhiUuidNumber != '' and params.chuanzhiUuidNumber != null and params.chuanzhiUuidNumber != 'null' ">
+                and chuanzhi.chuanzhi_uuid_number like CONCAT('%',#{params.chuanzhiUuidNumber},'%')
+            </if>
+            <if test=" params.chuanzhiName != '' and params.chuanzhiName != null and params.chuanzhiName != 'null' ">
+                and chuanzhi.chuanzhi_name like CONCAT('%',#{params.chuanzhiName},'%')
+            </if>
+            <if test="params.chuanzhiTypes != null  and params.chuanzhiTypes != ''">
+                and chuanzhi.chuanzhi_types = #{params.chuanzhiTypes}
+            </if>
+
+            <if test=" params.chuanzhiXinghao != '' and params.chuanzhiXinghao != null and params.chuanzhiXinghao != 'null' ">
+                and chuanzhi.chuanzhi_xinghao like CONCAT('%',#{params.chuanzhiXinghao},'%')
+            </if>
+            <if test=" params.chuanzhiCaizhi != '' and params.chuanzhiCaizhi != null and params.chuanzhiCaizhi != 'null' ">
+                and chuanzhi.chuanzhi_caizhi like CONCAT('%',#{params.chuanzhiCaizhi},'%')
+            </if>
+            <if test=" params.chuanzhiContent != '' and params.chuanzhiContent != null and params.chuanzhiContent != 'null' ">
+                and chuanzhi.chuanzhi_content like CONCAT('%',#{params.chuanzhiContent},'%')
+            </if>
+            <if test="params.chuanzhiDeleteStart != null  and params.chuanzhiDeleteStart != '' ">
+                <![CDATA[  and chuanzhi.chuanzhi_delete >= #{params.chuanzhiDeleteStart}   ]]>
+            </if>
+            <if test="params.chuanzhiDeleteEnd != null  and params.chuanzhiDeleteEnd != '' ">
+                <![CDATA[  and chuanzhi.chuanzhi_delete <= #{params.chuanzhiDeleteEnd}   ]]>
+            </if>
+            <if test="params.chuanzhiDelete != null  and params.chuanzhiDelete != '' ">
+                and chuanzhi.chuanzhi_delete = #{params.chuanzhiDelete}
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
